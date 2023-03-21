@@ -1,0 +1,61 @@
+schema: '2.0'
+stages:
+  load_data:
+    cmd: python src/load_data.py --config=params.yaml
+    deps:
+    - path: data_given/insurance.csv
+      md5: 1e336f97963437f5f9579ae9ca385680
+      size: 50264
+    - path: src/get_data.py
+      md5: aa5705b01ad546d2173d4f5b02ca8733
+      size: 681
+    - path: src/load_data.py
+      md5: 94eb6612de4ade76abd47954c28a9941
+      size: 577
+    outs:
+    - path: data/raw/insurance.csv
+      md5: 5a64c6a34169eb73c789fe66d1aaf5d6
+      size: 51634
+  split_data:
+    cmd: python src/split_data.py --config=params.yaml
+    deps:
+    - path: data/raw/insurance.csv
+      md5: 5a64c6a34169eb73c789fe66d1aaf5d6
+      size: 51634
+    - path: src/split_data.py
+      md5: c1feca9c8ca5187289e1ad412aadd387
+      size: 1366
+    outs:
+    - path: data/processed/test_insurance.csv
+      md5: 0ff4eceb04506d0ef4e97872ebc49802
+      size: 10374
+    - path: data/processed/train_insurance.csv
+      md5: b8fb1aa85cc133ba7dc3df1ad2e403ff
+      size: 41305
+  train_and_evaluate:
+    cmd: python src/train_and_evaluate.py --config=params.yaml
+    deps:
+    - path: data/processed/test_insurance.csv
+      md5: 0ff4eceb04506d0ef4e97872ebc49802
+      size: 10374
+    - path: data/processed/train_insurance.csv
+      md5: b8fb1aa85cc133ba7dc3df1ad2e403ff
+      size: 41305
+    - path: src/train_and_evaluate.py
+      md5: 7ddcf9d7a45d4d1569ad8db08e4988db
+      size: 3140
+    params:
+      params.yaml:
+        estimators.RandomForestRegressor.params.max_depth: 6
+        estimators.RandomForestRegressor.params.max_leaf_nodes: 2
+        estimators.RandomForestRegressor.params.n_estimators: 50
+    outs:
+    - path: reports/params.json
+      md5: 204839253fe497cc2999d2087e610ffe
+      size: 75
+    - path: reports/scores.json
+      md5: 93a186db64d32c473008baa42f317394
+      size: 103
+    - path: saved_models/model.joblib
+      md5: b4dacf3937a4671afe6e7fc56ad62641
+      size: 26001
